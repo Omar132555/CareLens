@@ -43,12 +43,11 @@ class LoginController extends Controller
             ], 422);
         }
 
-
         Auth::login($user);
         $request->session()->regenerate();
-        
+
         $user = Auth::user();
-        
+
         return response()->json([
             'status' => true,
             'user' => $user,
@@ -59,8 +58,9 @@ class LoginController extends Controller
     public function destroy()
     {
         Auth::logout();
-
-        return to_route('login');
+        return response()->json([
+            'status' => "logout"
+        ]);
     }
 
     public function forgetLink()
@@ -86,13 +86,11 @@ class LoginController extends Controller
             if ($count >= 3) {
                 return response()->json([
                     'error' => 'You excceded the limit, try again after 1 Day',
-                    'input' => 'email',
                 ]);
             }
             if ($try_again) {
                 return response()->json([
                     'error' => 'Too many request, please wait 2 minutes',
-                    'input' => 'email',
                 ]);
             }
             if ($user) {
@@ -104,23 +102,27 @@ class LoginController extends Controller
             Cache::put($cacheKey, $count + 1, 86400);
             Cache::put($cacheKey2, true, 120);
 
-            return response()->json(['email' => 'We have emailed you password reset link.']);
+            return response()->json(['message' => 'We have emailed you password reset link.']);
         }
     }
 
-    public function reset($token)
+    public function reset($token, $email)
     {
-        return view('Auth.reset-password', ['token' => $token, 'token']);
+        return redirect('http://localhost:5173/reset-password?token='.$token.'&email='.$email);
     }
 
     public function updatePass(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        // $validator = Validator::make($request->all(), [
+        //     'token' => 'required',
+        //     'email' => 'required|email',
+        //     'password' => ['required', 'confirmed', PassValidator::min(8)->letters()->numbers()],
+        // ]);
+        $request->validate([
             'token' => 'required',
             'email' => 'required|email',
             'password' => ['required', 'confirmed', PassValidator::min(8)->letters()->numbers()],
         ]);
-
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function (User $user, string $password) {
@@ -138,3 +140,5 @@ class LoginController extends Controller
             : back()->withErrors(['email' => [__($status)]]);
     }
 }
+
+//01000734106Ww

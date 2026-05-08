@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
 class Patient extends User
 {
     protected $guarded = [];
@@ -16,7 +14,7 @@ class Patient extends User
             $query->where('role', 'patient');
         });
     }
-    
+
     public function doctors()
     {
         return $this->hasMany(Doctor::class);
@@ -25,5 +23,10 @@ class Patient extends User
     public function savedArticles()
     {
         return $this->belongsToMany(Article::class, 'articles_saves');
+    }
+
+    public function medicalProfile()
+    {
+        return $this->hasOne(MedicalProfile::class, 'user_id');
     }
 }

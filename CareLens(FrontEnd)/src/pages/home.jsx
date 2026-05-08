@@ -1,7 +1,10 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useContext } from "react";
 import NavBar from "../components/navBar";
+import AuthModal from "../components/AuthModal";
 import { AuthContext } from "../components/AuthContext";
 import Scroll from "../hooks/Scroll";
+import { useNavigate } from "react-router-dom";
+import AskAI from "../components/AskAI";
 
 const PRIMARY = "#00685f";
 const PRIMARY_HOVER = "#008378";
@@ -65,15 +68,30 @@ const features = [
 
 export default function CareLens() {
   const scrolled = Scroll();
+  const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalView, setModalView] = useState("login");
+
+  const openAuthModal = (view = "login") => {
+    setModalView(view);
+    setModalOpen(true);
+  };
+
+  const handleStartClick = () => {
+    if (user) {
+      navigate("/chat-ai/new");
+      return;
+    }
+    openAuthModal("login");
+  };
+
   return (
     <div className="cl-body">
       {/* NAV */}
       <NavBar scrolled={scrolled} />
       {/* HERO */}
-      <button class="db-fab">
-        <span class="material-symbols-outlined">smart_toy</span>
-        Ask AI
-      </button>
+      <AskAI />
       <section className="cl-hero">
         <div className="cl-blob cl-blob-1" />
         <div className="cl-blob cl-blob-2" />
@@ -96,7 +114,7 @@ export default function CareLens() {
                 professional assistance.
               </p>
               <div className="cl-hero-btns">
-                <button className="cl-btn-lg cl-btn-lg-primary">
+                <button type="button" className="cl-btn-lg cl-btn-lg-primary" onClick={handleStartClick}>
                   Get Started
                 </button>
                 {/* {!user && (
@@ -368,7 +386,7 @@ export default function CareLens() {
               Join 50,000+ users who trust CareLens for their daily medical
               guidance and data security.
             </p>
-            <button className="cl-btn-cta">Start Now</button>
+            <button type="button" className="cl-btn-cta" onClick={handleStartClick}>Start Now</button>
           </div>
         </div>
       </div>
@@ -406,6 +424,7 @@ export default function CareLens() {
           </div>
         </div>
       </footer>
+      <AuthModal open={modalOpen} initialView={modalView} onClose={() => setModalOpen(false)} />
     </div>
   );
 }

@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ChatAiController;
 use App\Http\Controllers\PatientController;
+use App\Http\Middleware\EmergencyAlert;
 use App\Services\RagService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,7 +13,9 @@ use Illuminate\Support\Facades\Route;
 // routes/api.php
 
 Route::controller(PatientController::class)->group(function () {
-    Route::middleware('auth:sanctum')->group(function () {});
+    Route::middleware('auth:sanctum')->group(function () {
+       Route::put('/medical-profile/update','updateMedicalProfile')->name('medicalProfile.update'); 
+    });
 });
 Route::get('/home', function () {
     return response()->json([
@@ -25,7 +28,7 @@ Route::middleware('auth:sanctum')->group(function () {
         return Auth::user();
     });
     Route::controller(ChatAiController::class)->prefix('chatAi')->group(function (){
-        Route::post('/send', 'send')->name('chatAi.send');
+        Route::post('/send', 'send')->name('chatAi.send')->middleware(EmergencyAlert::class);
         Route::get('/conversation/get/names', 'userConversations')->name('chatAi.conversation.names');
         Route::post('/conversation/create', 'createConversation')->name('chatAi.conversation.create');
         Route::delete('/conversation/delete', 'deletConversation')->name('chatAi.conversation.delete');

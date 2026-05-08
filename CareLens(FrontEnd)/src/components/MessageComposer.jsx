@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 
-function MessageComposer({ onSend }) {
+function MessageComposer({ onSend, isSending }) {
   let [message, setMessage] = useState("");
 
   return (
-    <div className="tw-p-4 md-px-16 md-pb-8 w-100 max-w-5xl mx-auto bg-gradient-custom">
+    <div className="tw-p-5 md-px-16 md-pb-8 w-100 max-w-5xl mx-auto bg-gradient-custom position">
       <div className="tw-mb-4 d-flex justify-content-center">
         <p className="text-xs text-secondary-custom text-center max-w-lg opacity-80 mb-0">
           AI is not a substitute for professional medical advice.
@@ -23,9 +23,10 @@ function MessageComposer({ onSend }) {
 
 
           <button
+            disabled={isSending}
             onClick={(e) => {
               e.preventDefault();
-
+              
               if (!message.trim()) return;
 
               onSend(message);

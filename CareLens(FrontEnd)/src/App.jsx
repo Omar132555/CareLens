@@ -8,16 +8,114 @@ import "./styles/design-system.css";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import CompleteProfile from "./pages/CompleteProfile.jsx";
 import Test from "./pages/test.jsx";
+import ForgetPassword from "./pages/Auth/forget.jsx";
+import ResetPassword from "./pages/Auth/reset.jsx";
+import EmergencyAlert from "./pages/EmergencyAlert.jsx";
+import TreatmentFollowup from "./pages/TreatmentFollowup.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
+import MedicationReminders from "./pages/MedicationReminders.jsx";
+import SymptomTracker from "./pages/SymptomTracker.jsx";
+import Articles from "./pages/Articles.jsx";
+import ArticleDetail from "./pages/ArticleDetail.jsx";
+import SavedArticles from "./pages/SavedArticles.jsx";
+import AccountSettings from "./pages/AccountSettings.jsx";
+import NotFound from "./pages/NotFound.jsx";
+import ServiceUnavailable from "./pages/ServiceUnavailable.jsx";
+
 function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
       <Route path="/Home" element={<Home />} />
       <Route path="/CompleteProfile" element={<CompleteProfile />} />
-      <Route path="/chat-ai/:id" element={<ChatCareLens />} />
-      <Route path="/register" element={<Register />} />
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/medications"
+        element={
+          <ProtectedRoute>
+            <MedicationReminders />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/symptoms"
+        element={
+          <ProtectedRoute>
+            <SymptomTracker />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/articles"
+        element={
+          <ProtectedRoute>
+            <Articles />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/articles/:id"
+        element={
+          <ProtectedRoute>
+            <ArticleDetail />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/articles/saved"
+        element={
+          <ProtectedRoute>
+            <SavedArticles />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/settings"
+        element={
+          <ProtectedRoute>
+            <AccountSettings />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/chat-ai/:id"
+        element={
+          <ProtectedRoute>
+            <ChatCareLens />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/emergency-alert"
+        element={
+          <ProtectedRoute>
+            <EmergencyAlert />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/treatment-followup"
+        element={
+          <ProtectedRoute>
+            <TreatmentFollowup />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/forget-password" element={<ForgetPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/test" element={<Test />} />
-      <Route path="*" element={<Navigate to="/login" replace />} />
+      <Route path="/service-unavailable" element={<ServiceUnavailable />} />
+      <Route path="/503" element={<ServiceUnavailable />} />
+      <Route path="/not-found" element={<NotFound />} />
+      <Route path="*" element={<Navigate to="/not-found" replace />} />
     </Routes>
   );
 }

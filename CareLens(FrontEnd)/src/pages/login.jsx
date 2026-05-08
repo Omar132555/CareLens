@@ -1,7 +1,8 @@
 import axios from "axios";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCookie } from "../config.jsx";
+import { AuthContext } from "../components/AuthContext.jsx";
 // SVG Icons
 const IconMedical = () => (
   <svg
@@ -155,6 +156,7 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [data, setData] = useState([]);
   const [errors, setErrors] = useState({});
+  const { setUser } = useContext(AuthContext);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -188,6 +190,8 @@ function Login() {
         );
       })
       .then((res) => {
+        navigate('/home');
+        setUser(res.data.user);
         console.log("Login success", res.data);
       })
       .catch((err) => {
@@ -324,9 +328,6 @@ function Login() {
                   <label className="cl-field-label" style={{ marginBottom: 0 }}>
                     Password
                   </label>
-                  <a href={data.passwordForget} className="cl-forgot-link">
-                    Forgot?
-                  </a>
                 </div>
                 <div className="cl-input-wrap">
                   <div className="cl-input-icon">
@@ -363,6 +364,9 @@ function Login() {
                   id="remember_me"
                 />
                 <label htmlFor="remember_me">Remember Me</label>
+                <a href="/forget-password" className="cl-forgot-link ms-auto">
+                  Forgot?
+                </a>
               </div>
 
               {/* Submit */}

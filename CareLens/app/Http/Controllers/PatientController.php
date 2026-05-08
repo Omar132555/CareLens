@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MedicalProfile;
 use Illuminate\Http\Request;
 
 class PatientController extends Controller
@@ -44,5 +45,24 @@ class PatientController extends Controller
     public function destroy( )
     {
         //
+    }
+
+    public function updateMedicalProfile(Request $request)
+    {
+        $request->validate([
+            'age'=>'required',
+            'gender'=>'required',
+            'weight'=>'required',
+            'height'=>'required',
+            'chronic_diseases'=>'nullable',
+            'allergies'=>'nullable',
+            'current_medications'=>'nullable',
+        ])
+        MedicalProfile::updateOrCreate([
+
+        ]);
+        return response()->json([
+            'we are in medical update'
+        ]);
     }
 }

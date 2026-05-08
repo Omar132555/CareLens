@@ -1,27 +1,16 @@
-import axios from "axios";
-import prepareRequest from "../services/RequestService";
+import axios from "axios"
 import { useEffect } from "react";
+import prepareRequest from "../services/RequestService";
 
 export default function Test() {
   async function call() {
-    try {
-      const token = prepareRequest();
-
-      const res = await axios.post(
-        "/api/chatAi/conversation/create",
-        {},
-        {
-          headers: {
-            "X-XSRF-TOKEN": decodeURIComponent(token),
-          },
-        },
-      );
-
-      console.log(res.data);
-    } catch (err) {
-      console.log(err.response?.data);
-      console.log(err.response?.data?.errors);
-    }
+    const token = prepareRequest();
+    const res = await axios.put("/api/medical-profile/update",{},      {
+        headers:{
+          "X-XSRF-TOKEN":decodeURIComponent(token)
+        }
+      });
+     console.log(res.data);
   }
   useEffect(() => {
     call();

@@ -440,7 +440,7 @@ function Register() {
             <div className="cl-card-footer">
               <p>
                 Just browsing?
-                <a href="/posts">Guest Mode</a>
+                <a href="/home">Guest Mode</a>
               </p>
             </div>
           </div>

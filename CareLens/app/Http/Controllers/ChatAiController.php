@@ -7,6 +7,7 @@ use App\Services\ChatAiService;
 use App\Services\ConversationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class ChatAiController extends Controller
 {
@@ -39,16 +40,28 @@ class ChatAiController extends Controller
 
     public function getConversation(Conversation $conversation)
     {
-
         $data = app(ConversationService::class)->get($conversation->id);
-
         return response()->json($data);
     }
 
     public function userConversations()
     {
-        $conversations = Conversation::where('user_id', Auth::id())->get(['id', 'name']);
-        return response()->json($conversations);
+        $today = Carbon::today();
+
+        $todayConversations = Conversation::where('user_id', Auth::id())
+            ->whereDate('created_at', $today)
+            ->orderBy('created_at', 'desc')
+            ->get(['id', 'name']);
+
+        $historyConversations = Conversation::where('user_id', Auth::id())
+            ->whereDate('created_at', '<', $today)
+            ->orderBy('created_at', 'desc')
+            ->get(['id', 'name']);
+
+        return response()->json([
+            'today'=>$todayConversations,
+            'history'=> $historyConversations
+            ]);
     }
 
     public function deletConversation(Request $request)
@@ -60,3 +73,18 @@ class ChatAiController extends Controller
         app(ConversationService::class)->delete(Auth::user()->id);
     }
 }
+
+// git checkout develop
+// git pull
+
+//  git checkout -b feature/new
+
+// git add .
+// git commit -m "add login form"
+
+// git push -u origin feature/login
+
+// git checkout develop
+// git merge feature/login
+// git push
+// git branch -d feature/login

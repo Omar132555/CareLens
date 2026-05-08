@@ -17,9 +17,11 @@ class resetPasswordMail extends Mailable
      * Create a new message instance.
      */
     public $url;
-    public function __construct(protected $user, $url)
+    public $user;
+    public function __construct($user, $url)
     {
         $this->url = $url;
+        $this->user = $user;
     }
 
     /**

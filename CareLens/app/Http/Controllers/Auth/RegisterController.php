@@ -50,7 +50,6 @@ class RegisterController extends Controller
             return redirect('http://localhost:5173/CompleteProfile');
         }
 
-        // لو موجود → login عادي
         Auth::login($user);
         $request->session()->regenerate();
 
