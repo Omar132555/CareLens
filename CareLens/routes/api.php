@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ChatAiController;
+use App\Http\Controllers\MedicationController;
 use App\Http\Controllers\PatientController;
 use App\Services\RagService;
 use Illuminate\Http\Request;
@@ -24,6 +25,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return Auth::user();
     });
+    Route::apiResource('medications', MedicationController::class);
     Route::controller(ChatAiController::class)->prefix('chatAi')->group(function (){
         Route::post('/send', 'send')->name('chatAi.send');
         Route::get('/conversation/get/names', 'userConversations')->name('chatAi.conversation.names');
@@ -53,3 +55,5 @@ Route::middleware('web')->group(function () {
         Route::post('/reset-password', 'updatePass')->middleware('guest')->name('password.update');
     });
 });
+// Modified by Mahmoud Rafat
+// Added MedicationController API routes with auth:sanctum middleware for secure medication management
