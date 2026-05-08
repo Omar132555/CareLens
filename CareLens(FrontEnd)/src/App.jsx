@@ -8,6 +8,7 @@ import "./styles/design-system.css";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import CompleteProfile from "./pages/CompleteProfile.jsx";
 import Test from "./pages/test.jsx";
+import MedicationReminder from "./pages/MedicationReminder.jsx";
 function App() {
   return (
     <Routes>
@@ -15,11 +16,14 @@ function App() {
       <Route path="/Home" element={<Home />} />
       <Route path="/CompleteProfile" element={<CompleteProfile />} />
       <Route path="/chat-ai/:id" element={<ChatCareLens />} />
+      <Route path="/medications" element={<MedicationReminder />} />
       <Route path="/register" element={<Register />} />
       <Route path="/test" element={<Test />} />
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
 }
+// Modified by Mahmoud Rafat
+// Added MedicationReminder route to the app routing system
 
 export default App;

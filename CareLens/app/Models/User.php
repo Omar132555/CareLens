@@ -43,4 +43,10 @@ class User extends Authenticatable
         ];
     }
 
+    public function medications()
+    {
+        return $this->hasMany(Medication::class);
+    }
 }
+// Modified by Mahmoud Rafat
+// Added medications relationship to User model for accessing user's medications
