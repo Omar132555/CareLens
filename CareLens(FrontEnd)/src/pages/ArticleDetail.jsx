@@ -5,10 +5,12 @@ import NavBar from "../components/navBar";
 import Scroll from "../hooks/Scroll";
 import prepareRequest from "../services/RequestService";
 import NotificationToast from "../components/NotificationToast";
+import { AuthContext } from "../components/AuthContext";
 
 export default function ArticleDetail() {
   const scrolled = Scroll();
   const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
   const { id } = useParams();
   const [article, setArticle] = useState(null);
   const [comments, setComments] = useState([]);
@@ -104,6 +106,19 @@ export default function ArticleDetail() {
         title: "Error",
         message: "Failed to save article",
       });
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm("Are you sure you want to delete this article?")) return;
+    try {
+      const token = prepareRequest();
+      await axios.delete(`/api/articles/${id}`, {
+        headers: { "X-XSRF-TOKEN": decodeURIComponent(token) }
+      });
+      navigate("/doctor-dashboard?tab=blogs", { replace: true });
+    } catch {
+      setNotification({ type: "error", title: "Error", message: "Failed to delete article." });
     }
   };
 
@@ -259,30 +274,51 @@ export default function ArticleDetail() {
               </div>
 
               <div className="d-flex tw-gap-2 ms-auto">
-                <button
-                  onClick={handleLike}
-                  className={`btn btn-sm ${
-                    isLiked
-                      ? "btn-primary-custom"
-                      : "btn-outline-primary-custom"
-                  }`}
-                >
-                  <span className="material-symbols-outlined">
-                    {isLiked ? "favorite" : "favorite_border"}
-                  </span>
-                  Like
-                </button>
-                <button
-                  onClick={handleSave}
-                  className={`btn btn-sm ${
-                    isSaved ? "btn-primary-custom" : "btn-outline-primary-custom"
-                  }`}
-                >
-                  <span className="material-symbols-outlined">
-                    {isSaved ? "bookmark" : "bookmark_border"}
-                  </span>
-                  Save
-                </button>
+                {user?.id === article.doctor_id ? (
+                  <>
+                    <button
+                      onClick={() => navigate(`/doctor-dashboard?tab=blogs&edit=${article.id}`)}
+                      className="btn btn-sm btn-outline-primary-custom d-flex align-items-center gap-2"
+                    >
+                      <span className="material-symbols-outlined">edit</span>
+                      Edit
+                    </button>
+                    <button
+                      onClick={handleDelete}
+                      className="btn btn-sm btn-outline-danger d-flex align-items-center gap-2"
+                    >
+                      <span className="material-symbols-outlined">delete</span>
+                      Delete
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={handleLike}
+                      className={`btn btn-sm ${
+                        isLiked
+                          ? "btn-primary-custom"
+                          : "btn-outline-primary-custom"
+                      }`}
+                    >
+                      <span className="material-symbols-outlined">
+                        {isLiked ? "favorite" : "favorite_border"}
+                      </span>
+                      Like
+                    </button>
+                    <button
+                      onClick={handleSave}
+                      className={`btn btn-sm ${
+                        isSaved ? "btn-primary-custom" : "btn-outline-primary-custom"
+                      }`}
+                    >
+                      <span className="material-symbols-outlined">
+                        {isSaved ? "bookmark" : "bookmark_border"}
+                      </span>
+                      Save
+                    </button>
+                  </>
+                )}
               </div>
             </div>
 

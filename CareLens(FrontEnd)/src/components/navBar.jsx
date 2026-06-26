@@ -1,4 +1,5 @@
 import logo from "../../public/CareLensLogo.png";
+import { hasRole } from "../helpers/hasRole";
 import { AuthContext } from "./AuthContext";
 import UserProfile from "./UserProfile";
 import { useContext, useEffect } from "react";
@@ -35,14 +36,25 @@ function NavBar(scrolled) {
                 >
                   AI Assistant
                 </NavLink>
-                <NavLink
-                  to="/dashboard"
-                  className={({ isActive }) =>
-                    isActive ? "cl-nav-link active" : "cl-nav-link"
-                  }
-                >
-                  Dashboard
-                </NavLink>
+                {user.role === "patient" ? (
+                  <NavLink
+                    to="/patient-dashboard"
+                    className={({ isActive }) =>
+                      isActive ? "cl-nav-link active" : "cl-nav-link"
+                    }
+                  >
+                    Patient Dashboard
+                  </NavLink>
+                ) : user.role === "doctor" ? (
+                  <NavLink
+                    to="/doctor-dashboard"
+                    className={({ isActive }) =>
+                      isActive ? "cl-nav-link active" : "cl-nav-link"
+                    }
+                  >
+                    Doctor Dashboard
+                  </NavLink>
+                ) : null}
                 <NavLink
                   to="/symptoms"
                   className={({ isActive }) =>
@@ -59,14 +71,36 @@ function NavBar(scrolled) {
                 >
                   Treatment Plan
                 </NavLink>
+                {hasRole(user,"patient")&&(
                 <NavLink
-                  to="/CompleteProfile"
+                  to="/medical-profile"
                   className={({ isActive }) =>
                     isActive ? "cl-nav-link active" : "cl-nav-link"
                   }
                 >
                   Medical Profile
                 </NavLink>
+                )}
+                {hasRole(user,"doctor")&&(
+                <NavLink
+                  to="/patients"
+                  className={({ isActive }) =>
+                    isActive ? "cl-nav-link active" : "cl-nav-link"
+                  }
+                >
+                  Patients
+                </NavLink>
+                )}
+                {hasRole(user,"patient")&&(
+                <NavLink
+                  to="/doctors"
+                  className={({ isActive }) =>
+                    isActive ? "cl-nav-link active" : "cl-nav-link"
+                  }
+                >
+                  Doctors
+                </NavLink>
+                )}
                 <div className="position-relative">
                   <span
                     className="material-symbols-outlined text-secondary"
@@ -96,6 +130,7 @@ function NavBar(scrolled) {
           </>
         ) : (
           <>
+                {hasRole(user,"patient")&&(
             <button
               type="button"
               className="cl-btn-alert"
@@ -104,6 +139,7 @@ function NavBar(scrolled) {
               <span className="material-symbols-outlined">dangerous</span>
               Emergency Alert
             </button>
+            )}
             <div className="">
               <UserProfile title={user.name} />
             </div>

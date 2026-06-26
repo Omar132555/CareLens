@@ -45,6 +45,7 @@ function ChatMessages({ messages }) {
       </div>
 
       {/* dynamic messages */}
+
       {messages?.map((mess, index) =>
         mess.role === "user" ? (
           <UserMessage key={index} message={mess.content} time={formatTime(mess.created_at)} />

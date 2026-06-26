@@ -6,7 +6,7 @@ import prepareRequest from "../services/RequestService";
 import NavBar from "../components/navBar";
 import Scroll from "../hooks/Scroll";
 
-export default function Dashboard() {
+export default function PatientDashboard() {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const scrolled = Scroll();
@@ -17,9 +17,9 @@ export default function Dashboard() {
     upcomingMedications: [],
   });
   const [loading, setLoading] = useState(true);
-
+  
   useEffect(() => {
-    const fetchDashboardData = async () => {
+    const loadDashboard = async () => {
       try {
         const token = prepareRequest();
         const response = await axios.get("/api/dashboard/overview", {
@@ -37,7 +37,7 @@ export default function Dashboard() {
     };
 
     if (user) {
-      fetchDashboardData();
+      loadDashboard();
     } else {
       Promise.resolve().then(() => setLoading(false));
     }
@@ -95,45 +95,6 @@ export default function Dashboard() {
 
       <main className="main-content">
         <div className="d-flex flex-column gap-5">
-          <div className="row g-3">
-            <div className="col-12 col-sm-6 col-xl-3">
-              <div className="bg-white rounded-3 card-shadow p-4 stat-card h-100">
-                <p className="text-secondary mb-2" style={{ fontSize: '.8rem' }}>
-                  Upcoming meds
-                </p>
-                <h3 className="h4 fw-bold mb-0">{dashboardData.upcomingMedications?.length || 0}</h3>
-              </div>
-            </div>
-            <div className="col-12 col-sm-6 col-xl-3">
-              <div className="bg-white rounded-3 card-shadow p-4 stat-card h-100">
-                <p className="text-secondary mb-2" style={{ fontSize: '.8rem' }}>
-                  Last consultation
-                </p>
-                <h3 className="h4 fw-bold mb-0">
-                  {dashboardData.lastChat ? new Date(dashboardData.lastChat.created_at).toLocaleDateString() : 'No chats'}
-                </h3>
-              </div>
-            </div>
-            <div className="col-12 col-sm-6 col-xl-3">
-              <div className="bg-white rounded-3 card-shadow p-4 stat-card h-100">
-                <p className="text-secondary mb-2" style={{ fontSize: '.8rem' }}>
-                  Symptom log
-                </p>
-                <h3 className="h4 fw-bold mb-0">
-                  {dashboardData.recentSymptomLog ? `Severity ${dashboardData.recentSymptomLog.severity}/10` : 'No logs'}
-                </h3>
-              </div>
-            </div>
-            <div className="col-12 col-sm-6 col-xl-3">
-              <div className="bg-white rounded-3 card-shadow p-4 stat-card h-100">
-                <p className="text-secondary mb-2" style={{ fontSize: '.8rem' }}>
-                  Active sessions
-                </p>
-                <h3 className="h4 fw-bold mb-0">1</h3>
-              </div>
-            </div>
-          </div>
-
           <div className="row g-4">
             <div className="col-12 col-lg-4">
               <div className="ai-hero rounded-3 p-4 h-100 d-flex flex-column justify-content-between card-shadow">

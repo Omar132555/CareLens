@@ -25,8 +25,10 @@ class RegisterRequest extends FormRequest
         return [
             'name' => 'required|min:3',
             'email'=> 'required|email|unique:users,email',
-            'phone' => ['required', 'regex:/^01[0-2,5]{1}[0-9]{8}$/'],
+            'phone' => ['required', 'regex:/^01[0-2,5]{1}[0-9]{8}$/', 'unique:users,phone'],
             'password' => ['required','confirmed',Password::min(8)->letters()->numbers()],
+            'role' => ['required', 'in:patient,doctor'],
+            'profile_photo' => 'nullable'
         ];
     }
 }

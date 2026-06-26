@@ -4,11 +4,14 @@ import axios from "axios";
 import NavBar from "../components/navBar";
 import Scroll from "../hooks/Scroll";
 import prepareRequest from "../services/RequestService";
-import NotificationToast from "../components/NotificationToast";
+import { AuthContext } from "../components/AuthContext";
 
 export default function Articles() {
   const scrolled = Scroll();
   const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
+  const isDoctor = user?.role === "doctor";
+
   const [articles, setArticles] = useState([]);
   const [filteredArticles, setFilteredArticles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -94,13 +97,25 @@ export default function Articles() {
             onClose={() => setNotification(null)}
           />
 
-          <div className="tw-mb-8">
-            <h1 className="text-3xl fw-bold text-charcoal mb-1">
-              Medical Articles
-            </h1>
-            <p className="text-secondary-custom">
-              Explore health insights from medical professionals
-            </p>
+          <div className="d-flex justify-content-between align-items-end tw-mb-8">
+            <div>
+              <h1 className="text-3xl fw-bold text-charcoal mb-1">
+                Medical Articles
+              </h1>
+              <p className="text-secondary-custom mb-0">
+                Explore health insights from medical professionals
+              </p>
+            </div>
+            {isDoctor && (
+              <button
+                onClick={() => navigate("/doctor-dashboard?tab=blogs")}
+                className="btn fw-bold text-white d-flex align-items-center gap-2"
+                style={{ background: "#00796b", borderRadius: "10px", padding: "0.6rem 1.25rem", whiteSpace: "nowrap" }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: "1.1rem" }}>edit_document</span>
+                Write Article
+              </button>
+            )}
           </div>
 
           {/* Search and Filter */}
@@ -180,6 +195,21 @@ export default function Articles() {
                       <p className="text-xs text-secondary-custom flex-grow-1 tw-mb-3 line-clamp-3">
                         {article.content.substring(0, 100)}...
                       </p>
+
+                      <div className="d-flex align-items-center gap-3 mb-3 text-xs fw-bold text-secondary-custom">
+                        <div className="d-flex align-items-center gap-1">
+                          <span className="material-symbols-outlined" style={{ fontSize: "14px", color: article.is_liked ? "#ef4444" : "inherit" }}>
+                            {article.is_liked ? "favorite" : "favorite_border"}
+                          </span>
+                          {article.likes_count || 0}
+                        </div>
+                        <div className="d-flex align-items-center gap-1">
+                          <span className="material-symbols-outlined" style={{ fontSize: "14px", color: article.is_saved ? "#00796b" : "inherit" }}>
+                            {article.is_saved ? "bookmark" : "bookmark_border"}
+                          </span>
+                          {article.saves_count || 0}
+                        </div>
+                      </div>
 
                       <div className="d-flex justify-content-between align-items-center pt-3 border-top border-custom">
                         <small className="text-secondary-custom">

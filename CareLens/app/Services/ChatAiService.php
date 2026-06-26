@@ -12,7 +12,7 @@ use Illuminate\Support\Str;
 
 class ChatAiService
 {
-    public function handle(int $conversationId, string $message)
+    public function handle($conversation, string $message)
     {
         // $conversation = Conversation::where(
         //     'id',
@@ -21,7 +21,7 @@ class ChatAiService
         //     'user_id',
         //     Auth::id()
         // )->first();
-        $conversation = Conversation::find($conversationId);
+        //$conversation = Conversation::find($conversationId);
         $found = true;
         if (! $conversation) {
             $conversation = Conversation::create(['user_id' => Auth::user()->id]);

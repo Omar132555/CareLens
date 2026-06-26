@@ -1,5 +1,8 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import prepareRequest from "../services/RequestService";
+import NotificationToast from "../components/NotificationToast";
+import { AuthContext } from "../components/AuthContext";
 
 // SVG Icons
 const IconMedical = () => (
@@ -114,7 +117,42 @@ const IconShieldLock = () => (
     <path d="M12 11V9a2 2 0 1 0-4 0v2" />
   </svg>
 );
+const IconStethoscope = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6 6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3" />
+    <path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4" />
+    <circle cx="20" cy="10" r="2" />
+  </svg>
+);
 
+const IconPatient = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+  </svg>
+);
 const IconEyeOff = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -176,10 +214,13 @@ function Register() {
     password: "",
     password_confirmation: "",
     remember_me: false,
+    role: "",
   });
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [notification, setNotification] = useState(null);
+  const { user, setUser } = useContext(AuthContext);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -194,22 +235,34 @@ function Register() {
     await fetch("http://localhost:8000/sanctum/csrf-cookie", {
       credentials: "include",
     });
+    const token = prepareRequest();
     const res = await fetch("http://localhost:8000/api/register", {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
-        credentials: "include",
         Accept: "application/json",
+        "X-XSRF-TOKEN": decodeURIComponent(token),
       },
       body: JSON.stringify(form),
     });
-    
     const data = await res.json();
     if (!res.ok) {
       setErrors(data.errors || {});
+            setNotification({
+        type: "error",
+        title: "Error",
+        message: "Validation Error",
+      });
       return;
     } else if (data.status == true) {
-      navigate(`/${data.redirect}`)
+      setNotification({
+        type: "success",
+        title: "Success",
+        message: "Registered!",
+      });
+      setUser(data.user);
+      navigate(`/${data.redirect}`);
     }
   };
   useEffect(() => {
@@ -255,6 +308,46 @@ function Register() {
             <div className="cl-card-header">
               <h2>Create Account</h2>
               <p>Join the medical platform today</p>
+            </div>
+            <label className="cl-role-label">Select Role</label>
+            {errors.role && <p className="text-danger m-2">{errors.role[0]}</p>}
+            <div className="cl-role-selector">
+              <div className="cl-role-option">
+                <input
+                  type="radio"
+                  id="role-doctor"
+                  name="role"
+                  value="doctor"
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      role: e.target.value,
+                    })
+                  }
+                />
+                <label className="cl-role-option-label" htmlFor="role-doctor">
+                  <IconStethoscope />
+                  Doctor
+                </label>
+              </div>
+              <div className="cl-role-option">
+                <input
+                  type="radio"
+                  id="role-patient"
+                  name="role"
+                  value="patient"
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      role: e.target.value,
+                    })
+                  }
+                />
+                <label className="cl-role-option-label" htmlFor="role-patient">
+                  <IconPatient />
+                  Patient
+                </label>
+              </div>
             </div>
 
             {/* Form */}
@@ -371,8 +464,8 @@ function Register() {
                     {showConfirmPassword ? <IconEye /> : <IconEyeOff />}
                   </button>
                 </div>
-                {errors.email && (
-                  <p className="text-danger m-2">{errors.email[0]}</p>
+                {errors.password_confirmation && (
+                  <p className="text-danger m-2">{errors.confirmation[0]}</p>
                 )}
               </div>
 
@@ -453,6 +546,11 @@ function Register() {
           <a href="#">Support</a>
         </div>
       </div>
+      <NotificationToast
+        open={!!notification}
+        notification={notification}
+        onClose={() => setNotification(null)}
+      />
     </div>
   );
 }

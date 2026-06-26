@@ -17,16 +17,32 @@ class Patient extends User
 
     public function doctors()
     {
-        return $this->hasMany(Doctor::class);
+        return $this->belongsToMany(
+            User::class,
+            'doctor_patient',
+            'patient_id',
+            'doctor_id'
+        );
     }
 
     public function savedArticles()
     {
-        return $this->belongsToMany(Article::class, 'articles_saves');
+        return $this->belongsToMany(Article::class, 'article_saves');
     }
 
     public function medicalProfile()
     {
         return $this->hasOne(MedicalProfile::class, 'user_id');
     }
+
+    public function treatmentPlans()
+    {
+        return $this->hasMany(TreatmentPlan::class, 'patient_id');
+    }
+
+    public function dailyLogs()
+    {
+        return $this->hasMany(PatientDailyLog::class, 'patient_id');
+    }
+
 }

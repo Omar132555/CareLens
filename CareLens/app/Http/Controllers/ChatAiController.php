@@ -14,17 +14,21 @@ class ChatAiController extends Controller
     public function send(Request $request)
     {
         $request->validate([
-            'conversation_id' => 'required',
+            'conversation_id' => 'required|integer',
             'message' => 'required|string',
         ]);
 
-        return response()->stream(function () use ($request) {
+        $conversation = Conversation::where('id', '=', $request->conversation_id, 'and')
+            ->where('user_id', '=', Auth::id(), 'and')
+            ->firstOrFail();
 
+        $this->authorize('update', $conversation);
+
+        return response()->stream(function () use ($conversation, $request) {
             app(ChatAiService::class)->handle(
-                $request->conversation_id,
+                $conversation,
                 $request->message
             );
-
         });
     }
 
@@ -40,6 +44,8 @@ class ChatAiController extends Controller
 
     public function getConversation(Conversation $conversation)
     {
+        $this->authorize('view', $conversation);
+
         $data = app(ConversationService::class)->get($conversation->id);
         return response()->json($data);
     }
@@ -48,12 +54,12 @@ class ChatAiController extends Controller
     {
         $today = Carbon::today();
 
-        $todayConversations = Conversation::where('user_id', Auth::id())
+        $todayConversations = Conversation::where('user_id', '=', Auth::id(), 'and')
             ->whereDate('created_at', $today)
             ->orderBy('created_at', 'desc')
             ->get(['id', 'name']);
 
-        $historyConversations = Conversation::where('user_id', Auth::id())
+        $historyConversations = Conversation::where('user_id', '=', Auth::id(), 'and')
             ->whereDate('created_at', '<', $today)
             ->orderBy('created_at', 'desc')
             ->get(['id', 'name']);
@@ -74,17 +80,3 @@ class ChatAiController extends Controller
     }
 }
 
-// git checkout develop
-// git pull
-
-//  git checkout -b feature/new
-
-// git add .
-// git commit -m "add login form"
-
-// git push -u origin feature/login
-
-// git checkout develop
-// git merge feature/login
-// git push
-// git branch -d feature/login

@@ -2,6 +2,7 @@ import { useState, useContext } from "react";
 import NavBar from "../components/navBar";
 import AuthModal from "../components/AuthModal";
 import { AuthContext } from "../components/AuthContext";
+import ProtectedRoute from "../components/ProtectedRoute";
 import Scroll from "../hooks/Scroll";
 import { useNavigate } from "react-router-dom";
 import AskAI from "../components/AskAI";
@@ -15,7 +16,8 @@ const Icon = ({ name, size = 24, color, className = "" }) => (
   </span>
 );
 
-const features = [
+/* ── Patient features (existing) ─────────────────────────────── */
+const patientFeatures = [
   {
     icon: "chat_bubble",
     title: "AI Medical Assistant",
@@ -66,12 +68,55 @@ const features = [
   },
 ];
 
+/* ── Doctor features ─────────────────────────────────────────── */
+const doctorFeatures = [
+  {
+    icon: "assignment",
+    title: "Treatment Plans",
+    desc: "Create structured plans with medications, dosages, and follow-up questions.",
+    danger: false,
+  },
+  {
+    icon: "group",
+    title: "Patient Monitoring",
+    desc: "Review daily compliance logs and adherence statistics for each patient.",
+    danger: false,
+  },
+  {
+    icon: "library_books",
+    title: "Article Publishing",
+    desc: "Write and publish medical articles read by thousands of patients.",
+    danger: false,
+  },
+  {
+    icon: "smart_toy",
+    title: "AI Consultation",
+    desc: "Get instant diagnostic suggestions powered by clinical AI.",
+    danger: false,
+  },
+  {
+    icon: "verified",
+    title: "Verification Badge",
+    desc: "Earn a CareLens Verified badge and build patient trust.",
+    danger: false,
+  },
+  {
+    icon: "analytics",
+    title: "Adherence Analytics",
+    desc: "Visual charts showing patient compliance trends over time.",
+    danger: false,
+  },
+];
+
+/* ══════════════════════════════════════════════════════════════ */
 export default function CareLens() {
   const scrolled = Scroll();
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalView, setModalView] = useState("login");
+
+  const isDoctor = user?.role === "doctor";
 
   const openAuthModal = (view = "login") => {
     setModalView(view);
@@ -80,25 +125,242 @@ export default function CareLens() {
 
   const handleStartClick = () => {
     if (user) {
-      navigate("/chat-ai/new");
+      if (isDoctor) navigate("/doctor-dashboard");
+      else navigate("/chat-ai/new");
       return;
     }
     openAuthModal("login");
   };
 
-  return (
+  /* ── Doctor Home ─────────────────────────────────────────── */
+  const doctorHome = (
     <div className="cl-body">
-      {/* NAV */}
       <NavBar scrolled={scrolled} />
+      <AskAI />
+
       {/* HERO */}
+      <section className="cl-hero">
+        <div className="cl-blob cl-blob-1" />
+        <div className="cl-blob cl-blob-2" />
+        <div className="cl-container" style={{ position: "relative", zIndex: 1 }}>
+          <div className="cl-hero-grid">
+            <div>
+              <div className="cl-badge">
+                <span className="cl-badge-dot" />
+                Clinical Command Center
+              </div>
+              <h1 className="cl-hero-title">
+                Your Clinical Command Center. AI-Powered.
+              </h1>
+              <p className="cl-hero-sub">
+                CareLens gives you a full clinical suite — create treatment plans,
+                monitor patient adherence, publish medical articles, and consult
+                with AI. All in one place.
+              </p>
+              <div className="cl-hero-btns">
+                <button
+                  id="btn-doctor-dashboard"
+                  type="button"
+                  className="cl-btn-lg cl-btn-lg-primary"
+                  onClick={() => navigate("/doctor-dashboard")}
+                >
+                  Go to Dashboard
+                </button>
+                <button
+                  type="button"
+                  className="cl-btn-lg cl-btn-lg-outline"
+                  onClick={() => navigate("/treatment-followup")}
+                >
+                  Treatment Plans
+                </button>
+              </div>
+            </div>
+
+            <div className="cl-hero-visual">
+              <div className="cl-center-img">
+                <img
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCv-LQ_xNKsO_Wg6Q0s0oR7fHXJ7MxuhRtDXkO1q3uS94NyDfqtop9Nj5HEyfIOAzJ3j-8myaYghG4cZzjyWmjeWqFmqnOzYsrHU5GyrUgQfyvmFZhaGYqtt8-fORVNcTrS0gTCS9Ac-FmKu3ccCZ8lrhKMtrGd-17p8W8drbJQfHqRSSCbZ-udCeR3rmWA8NfKf4tYe9GoHkV0C52IY9VAqTCsRS3vKW1Ekfh26mFinN3n7S78JZumjsn8YIBnBYfCXBoYyFU1zr85"
+                  alt="bg"
+                />
+              </div>
+
+              {/* Patients stat card */}
+              <div className="cl-glass cl-card-heart">
+                <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+                  <div className="cl-card-icon">
+                    <Icon name="group" color={PRIMARY} />
+                  </div>
+                  <span style={{ fontWeight: 700, fontSize: 14 }}>Active Patients</span>
+                </div>
+                <div className="cl-bpm">124</div>
+                <div className="cl-bars">
+                  {[10, 18, 26, 14, 22, 30, 20].map((h, i) => (
+                    <div
+                      key={i}
+                      className="cl-bar"
+                      style={{ height: h, background: `rgba(0,104,95,${0.15 + i * 0.1})` }}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Verified badge card */}
+              <div className="cl-glass cl-card-privacy ms-3">
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <Icon name="verified" color={PRIMARY} size={20} />
+                  <span style={{ fontWeight: 700, fontSize: 14 }}>CareLens Verified</span>
+                </div>
+                <p style={{ color: "#3d4947", fontSize: 14, lineHeight: 1.5, margin: 0 }}>
+                  Get your verification badge and build patient trust instantly.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* HOW IT WORKS FOR DOCTORS */}
+      <section className="cl-section cl-section-white" id="how-it-works">
+        <div className="cl-container">
+          <div style={{ textAlign: "center" }}>
+            <h2 className="cl-section-title">How it works for doctors.</h2>
+          </div>
+          <div className="cl-steps">
+            <div className="cl-steps-line" />
+            {[
+              {
+                n: "1",
+                title: "Get Verified",
+                desc: "Submit your verification request. Once approved, you'll receive your CareLens Verified badge.",
+              },
+              {
+                n: "2",
+                title: "Create Treatment Plans",
+                desc: "Build structured plans with medications, dosages, and follow-up questions for your patients.",
+              },
+              {
+                n: "3",
+                title: "Monitor Patients",
+                desc: "Review daily compliance logs, adherence statistics, and send personalized feedback.",
+              },
+            ].map((s) => (
+              <div key={s.n} className="cl-step">
+                <div className="cl-step-num">{s.n}</div>
+                <div className="cl-step-title">{s.title}</div>
+                <p className="cl-step-desc">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* DOCTOR FEATURES GRID */}
+      <section className="cl-section cl-section-gray" id="features">
+        <div className="cl-container">
+          <h2 className="cl-section-title">A complete clinical ecosystem.</h2>
+          <div className="cl-feat-grid">
+            {doctorFeatures.map((f) => (
+              <div key={f.title} className="cl-feat-card">
+                <Icon name={f.icon} className="cl-feat-icon" color={PRIMARY} size={28} />
+                <div className="cl-feat-title">{f.title}</div>
+                <div className="cl-feat-desc">{f.desc}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* STATS */}
+      <section className="cl-section cl-section-dark">
+        <div className="cl-container" style={{ textAlign: "center" }}>
+          <div className="cl-shield-wrap">
+            <Icon name="analytics" color={PRIMARY} size={36} />
+          </div>
+          <h2 style={{ fontSize: 42, color: "#fff", marginBottom: 0 }}>
+            Trusted by doctors worldwide.
+          </h2>
+          <div className="cl-security-grid">
+            <div>
+              <div className="cl-sec-title">2,400+ Doctors</div>
+              <p className="cl-sec-desc">
+                Active verified clinicians using CareLens to manage their patients.
+              </p>
+            </div>
+            <div>
+              <div className="cl-sec-title">50,000+ Patients Helped</div>
+              <p className="cl-sec-desc">
+                Daily compliance logs tracked and treatment plans created on the platform.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <div className="cl-cta bg-white">
+        <div className="cl-cta-inner">
+          <img
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuC3PyLwHEX2gwQPUlH4IP3Jt8h-7nMAoKoMlBe-H1nKE9RQBPpVWl2PFOySLYa0NbS3r3GRL-fnP4CoZVlqdEzpy9RqdOE22aQfpgXoNZDSy-ssyGjXTKSXViBcopy9BLuj9H_ZWWg3YAq5bA-6xCSB7UdxTwy_vDJ92eq7bPk8WLH2U2aeK0BkDpBSJhKcghfnvg8raH9nTxeQH957DfTZEM8vZd0_0vdzIR3c00l_DyhN74UuRSFYZFvLFGwb8Ny3waiol15adfgZ"
+            alt="texture"
+          />
+          <div className="cl-cta-content">
+            <h2 className="cl-cta-title">Take Your Practice to the Next Level</h2>
+            <p className="cl-cta-sub">
+              Join 2,400+ verified doctors using CareLens to deliver better patient outcomes.
+            </p>
+            <button
+              id="btn-doctor-cta"
+              type="button"
+              className="cl-btn-cta"
+              onClick={() => navigate("/doctor-dashboard")}
+            >
+              Open Dashboard
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* FOOTER */}
+      <footer className="cl-footer">
+        <div className="cl-container bg-light">
+          <div className="cl-footer-grid">
+            <div>
+              <div className="cl-footer-logo">CareLens</div>
+              <p className="cl-footer-copy">
+                © 2024 CareLens. This is an AI assistant, not a replacement for
+                clinical judgment. Always apply professional medical standards.
+              </p>
+            </div>
+            <div className="cl-footer-links-grid">
+              {[
+                { title: "Product", links: ["Features", "Security"] },
+                { title: "Legal", links: ["Privacy Policy", "Terms of Service"] },
+                { title: "Support", links: ["Cookie Policy", "Security"] },
+              ].map((col) => (
+                <div key={col.title}>
+                  <div className="cl-footer-col-title">{col.title}</div>
+                  {col.links.map((l) => (
+                    <a key={l} href="#" className="cl-footer-link">{l}</a>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </footer>
+      <AuthModal open={modalOpen} initialView={modalView} onClose={() => setModalOpen(false)} />
+    </div>
+  );
+
+  /* ── Patient / Public Home (original) ────────────────────── */
+  const patientHome = (
+    <div className="cl-body">
+      <NavBar scrolled={scrolled} />
       <AskAI />
       <section className="cl-hero">
         <div className="cl-blob cl-blob-1" />
         <div className="cl-blob cl-blob-2" />
-        <div
-          className="cl-container"
-          style={{ position: "relative", zIndex: 1 }}
-        >
+        <div className="cl-container" style={{ position: "relative", zIndex: 1 }}>
           <div className="cl-hero-grid">
             <div>
               <div className="cl-badge">
@@ -114,12 +376,14 @@ export default function CareLens() {
                 professional assistance.
               </p>
               <div className="cl-hero-btns">
-                <button type="button" className="cl-btn-lg cl-btn-lg-primary" onClick={handleStartClick}>
+                <button
+                  id="btn-patient-get-started"
+                  type="button"
+                  className="cl-btn-lg cl-btn-lg-primary"
+                  onClick={handleStartClick}
+                >
                   Get Started
                 </button>
-                {/* {!user && (
-                  <button className="cl-btn-lg cl-btn-lg-outline">Login</button>
-                )} */}
               </div>
             </div>
 
@@ -130,22 +394,12 @@ export default function CareLens() {
                   alt="bg"
                 />
               </div>
-
               <div className="cl-glass cl-card-heart">
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 12,
-                    marginBottom: 12,
-                  }}
-                >
+                <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
                   <div className="cl-card-icon">
                     <Icon name="monitoring" color={PRIMARY} />
                   </div>
-                  <span style={{ fontWeight: 700, fontSize: 14 }}>
-                    Heart Rate
-                  </span>
+                  <span style={{ fontWeight: 700, fontSize: 14 }}>Heart Rate</span>
                 </div>
                 <div className="cl-bpm">72 BPM</div>
                 <div className="cl-bars">
@@ -153,39 +407,18 @@ export default function CareLens() {
                     <div
                       key={i}
                       className="cl-bar"
-                      style={{
-                        height: h,
-                        background: `rgba(0,104,95,${0.15 + i * 0.1})`,
-                      }}
+                      style={{ height: h, background: `rgba(0,104,95,${0.15 + i * 0.1})` }}
                     />
                   ))}
                 </div>
               </div>
-
               <div className="cl-glass cl-card-privacy ms-3">
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                    marginBottom: 8,
-                  }}
-                >
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
                   <Icon name="lock" color={PRIMARY} size={20} />
-                  <span style={{ fontWeight: 700, fontSize: 14 }}>
-                    Encrypted Local Storage
-                  </span>
+                  <span style={{ fontWeight: 700, fontSize: 14 }}>Encrypted Local Storage</span>
                 </div>
-                <p
-                  style={{
-                    color: "#3d4947",
-                    fontSize: 14,
-                    lineHeight: 1.5,
-                    margin: 0,
-                  }}
-                >
-                  Your medical logs are processed offline using CareLens Core
-                  Engine.
+                <p style={{ color: "#3d4947", fontSize: 14, lineHeight: 1.5, margin: 0 }}>
+                  Your medical logs are processed offline using CareLens Core Engine.
                 </p>
               </div>
             </div>
@@ -197,30 +430,14 @@ export default function CareLens() {
       <section className="cl-section cl-section-white">
         <div className="cl-container">
           <div style={{ textAlign: "center", marginBottom: 0 }}>
-            <h2 className="cl-section-title">
-              The healthcare gap we're closing.
-            </h2>
-            <p className="cl-section-sub">
-              Standard medical access is often fragmented and risky.
-            </p>
+            <h2 className="cl-section-title">The healthcare gap we're closing.</h2>
+            <p className="cl-section-sub">Standard medical access is often fragmented and risky.</p>
           </div>
           <div className="cl-problems-grid">
             {[
-              {
-                icon: "schedule",
-                title: "Long waiting times",
-                desc: "Average specialist wait times can span weeks or even months.",
-              },
-              {
-                icon: "payments",
-                title: "Expensive consultations",
-                desc: "High costs prevent millions from seeking early medical guidance.",
-              },
-              {
-                icon: "security",
-                title: "Privacy concerns",
-                desc: "Medical data in the cloud is vulnerable to breaches and tracking.",
-              },
+              { icon: "schedule", title: "Long waiting times", desc: "Average specialist wait times can span weeks or even months." },
+              { icon: "payments", title: "Expensive consultations", desc: "High costs prevent millions from seeking early medical guidance." },
+              { icon: "security", title: "Privacy concerns", desc: "Medical data in the cloud is vulnerable to breaches and tracking." },
             ].map((p) => (
               <div key={p.title} className="cl-prob-card">
                 <div className="cl-prob-icon">
@@ -251,21 +468,9 @@ export default function CareLens() {
               </h2>
               <div className="cl-features-list">
                 {[
-                  {
-                    icon: "bolt",
-                    title: "Instant AI responses",
-                    desc: "Get clinically-backed guidance in milliseconds, not days.",
-                  },
-                  {
-                    icon: "wifi_off",
-                    title: "Offline processing",
-                    desc: "Our LLMs run directly on your hardware. No internet required for analysis.",
-                  },
-                  {
-                    icon: "verified_user",
-                    title: "Privacy-first",
-                    desc: "Zero-knowledge architecture means we can't see your data even if we wanted to.",
-                  },
+                  { icon: "bolt", title: "Instant AI responses", desc: "Get clinically-backed guidance in milliseconds, not days." },
+                  { icon: "wifi_off", title: "Offline processing", desc: "Our LLMs run directly on your hardware. No internet required for analysis." },
+                  { icon: "verified_user", title: "Privacy-first", desc: "Zero-knowledge architecture means we can't see your data even if we wanted to." },
                 ].map((f) => (
                   <div key={f.title} className="cl-feature-item">
                     <div className="cl-feature-icon">
@@ -288,17 +493,9 @@ export default function CareLens() {
         <div className="cl-container">
           <h2 className="cl-section-title">A complete health ecosystem.</h2>
           <div className="cl-feat-grid">
-            {features.map((f) => (
-              <div
-                key={f.title}
-                className={`cl-feat-card${f.danger ? " danger-tint" : ""}`}
-              >
-                <Icon
-                  name={f.icon}
-                  className="cl-feat-icon"
-                  color={f.danger ? "#e53e3e" : PRIMARY}
-                  size={28}
-                />
+            {patientFeatures.map((f) => (
+              <div key={f.title} className={`cl-feat-card${f.danger ? " danger-tint" : ""}`}>
+                <Icon name={f.icon} className="cl-feat-icon" color={f.danger ? "#e53e3e" : PRIMARY} size={28} />
                 <div className="cl-feat-title">{f.title}</div>
                 <div className="cl-feat-desc">{f.desc}</div>
               </div>
@@ -320,16 +517,13 @@ export default function CareLens() {
             <div>
               <div className="cl-sec-title">100% Local AI Processing</div>
               <p className="cl-sec-desc">
-                Your health data is analyzed by the neural engine of your
-                smartphone or computer. It never travels across the public
-                internet.
+                Your health data is analyzed by the neural engine of your smartphone or computer.
               </p>
             </div>
             <div>
               <div className="cl-sec-title">Encrypted Data</div>
               <p className="cl-sec-desc">
-                All local storage is protected by AES-256 hardware-level
-                encryption, accessible only by your biometric authentication.
+                All local storage is protected by AES-256 hardware-level encryption.
               </p>
             </div>
           </div>
@@ -340,28 +534,14 @@ export default function CareLens() {
       <section className="cl-section cl-section-white" id="how-it-works">
         <div className="cl-container">
           <div style={{ textAlign: "center" }}>
-            <h2 className="cl-section-title">
-              Clinical guidance in three steps.
-            </h2>
+            <h2 className="cl-section-title">Clinical guidance in three steps.</h2>
           </div>
           <div className="cl-steps">
             <div className="cl-steps-line" />
             {[
-              {
-                n: "1",
-                title: "Describe symptoms",
-                desc: "Speak or type your symptoms and health history into the secure local interface.",
-              },
-              {
-                n: "2",
-                title: "Local analysis",
-                desc: "The on-device LLM processes your data against 20 million medical clinical records.",
-              },
-              {
-                n: "3",
-                title: "Instant guidance",
-                desc: "Receive a structured report with potential diagnoses and recommended next steps.",
-              },
+              { n: "1", title: "Describe symptoms", desc: "Speak or type your symptoms and health history into the secure local interface." },
+              { n: "2", title: "Local analysis", desc: "The on-device LLM processes your data against 20 million medical clinical records." },
+              { n: "3", title: "Instant guidance", desc: "Receive a structured report with potential diagnoses and recommended next steps." },
             ].map((s) => (
               <div key={s.n} className="cl-step">
                 <div className="cl-step-num">{s.n}</div>
@@ -383,8 +563,7 @@ export default function CareLens() {
           <div className="cl-cta-content">
             <h2 className="cl-cta-title">Take Control of Your Health Today</h2>
             <p className="cl-cta-sub">
-              Join 50,000+ users who trust CareLens for their daily medical
-              guidance and data security.
+              Join 50,000+ users who trust CareLens for their daily medical guidance and data security.
             </p>
             <button type="button" className="cl-btn-cta" onClick={handleStartClick}>Start Now</button>
           </div>
@@ -398,25 +577,19 @@ export default function CareLens() {
             <div>
               <div className="cl-footer-logo">CareLens</div>
               <p className="cl-footer-copy">
-                © 2024 CareLens. This is an AI assistant, not a doctor. In
-                emergencies, contact medical services immediately.
+                © 2024 CareLens. This is an AI assistant, not a doctor. In emergencies, contact medical services immediately.
               </p>
             </div>
             <div className="cl-footer-links-grid">
               {[
                 { title: "Product", links: ["Features", "Security"] },
-                {
-                  title: "Legal",
-                  links: ["Privacy Policy", "Terms of Service"],
-                },
+                { title: "Legal", links: ["Privacy Policy", "Terms of Service"] },
                 { title: "Support", links: ["Cookie Policy", "Security"] },
               ].map((col) => (
                 <div key={col.title}>
                   <div className="cl-footer-col-title">{col.title}</div>
                   {col.links.map((l) => (
-                    <a key={l} href="#" className="cl-footer-link">
-                      {l}
-                    </a>
+                    <a key={l} href="#" className="cl-footer-link">{l}</a>
                   ))}
                 </div>
               ))}
@@ -427,4 +600,8 @@ export default function CareLens() {
       <AuthModal open={modalOpen} initialView={modalView} onClose={() => setModalOpen(false)} />
     </div>
   );
+
+  /* ── Render ───────────────────────────────────────────────── */
+  const content = isDoctor ? doctorHome : patientHome;
+  return user ? <ProtectedRoute>{content}</ProtectedRoute> : content;
 }

@@ -29,14 +29,16 @@ function ChatCareLens() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-  async function handleConv() {
-    console.log(id);
+  async function createConv() {
     if (id === "new") {
       const convId = await createConversation();
       console.log("New conversation Created");
       setConversationId(convId);
       navigate(`/chat-ai/${convId}`);
-    } else {
+    }
+  }
+  async function getConv() {
+    if (id !== "new") {
       const data = await getConversation(id);
       setConversationId(id);
       if (data == null) {
@@ -48,20 +50,29 @@ function ChatCareLens() {
       setMessages(data);
     }
   }
+  const formatTime = () => {
+    const date = new Date();
+
+    return date;
+  };
   useEffect(() => {
-    handleConv();
+    getConv();
   }, [id]);
   async function sendMessage(text) {
+    await createConv();
     if (isSending) return;
-
     const userMsg = {
       role: "user",
       content: text,
+      created_at: formatTime(),
     };
 
     setMessages((prev) => [...prev, userMsg]);
 
-    setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
+    setMessages((prev) => [
+      ...prev,
+      { role: "assistant", content: "", created_at: formatTime() },
+    ]);
 
     setIsSending(true);
     setIsTyping(true);

@@ -7,12 +7,13 @@ import "./styles/main.css";
 import "./styles/design-system.css";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import CompleteProfile from "./pages/CompleteProfile.jsx";
+import MedicalProfile from "./pages/MedicalProfile.jsx";
 import Test from "./pages/test.jsx";
 import ForgetPassword from "./pages/Auth/forget.jsx";
 import ResetPassword from "./pages/Auth/reset.jsx";
 import EmergencyAlert from "./pages/EmergencyAlert.jsx";
 import TreatmentFollowup from "./pages/TreatmentFollowup.jsx";
-import Dashboard from "./pages/Dashboard.jsx";
+import PatientDashboard from "./pages/PatientDashboard.jsx";
 import MedicationReminders from "./pages/MedicationReminders.jsx";
 import SymptomTracker from "./pages/SymptomTracker.jsx";
 import Articles from "./pages/Articles.jsx";
@@ -21,6 +22,11 @@ import SavedArticles from "./pages/SavedArticles.jsx";
 import AccountSettings from "./pages/AccountSettings.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import ServiceUnavailable from "./pages/ServiceUnavailable.jsx";
+import DoctorCategoryModal from "./components/DoctorCategoryModal.jsx";
+import Forbidden from "./pages/Forbidden.jsx";
+import DoctorDashboard from "./pages/DoctorDashboard.jsx";
+import AdminDashboard from "./pages/AdminDashboard.jsx";
+import Doctors from "./pages/Doctors.jsx";
 
 function App() {
   return (
@@ -29,11 +35,28 @@ function App() {
       <Route path="/register" element={<Register />} />
       <Route path="/Home" element={<Home />} />
       <Route path="/CompleteProfile" element={<CompleteProfile />} />
+      <Route path="/medical-profile" element={<MedicalProfile />} />
       <Route
-        path="/dashboard"
+        path="/patient-dashboard"
         element={
-          <ProtectedRoute>
-            <Dashboard />
+          <ProtectedRoute allowedRoles={["patient"]}>
+            <PatientDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/doctor-dashboard"
+        element={
+          <ProtectedRoute allowedRoles={["doctor"]}>
+            <DoctorDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin-dashboard"
+        element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <AdminDashboard />
           </ProtectedRoute>
         }
       />
@@ -42,6 +65,14 @@ function App() {
         element={
           <ProtectedRoute>
             <MedicationReminders />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/doctors"
+        element={
+          <ProtectedRoute>
+            <Doctors />
           </ProtectedRoute>
         }
       />
@@ -94,6 +125,12 @@ function App() {
         }
       />
       <Route
+        path="/Doctor/Category/Select"
+        element={
+            <DoctorCategoryModal />
+        }
+      />
+      <Route
         path="/emergency-alert"
         element={
           <ProtectedRoute>
@@ -115,6 +152,7 @@ function App() {
       <Route path="/service-unavailable" element={<ServiceUnavailable />} />
       <Route path="/503" element={<ServiceUnavailable />} />
       <Route path="/not-found" element={<NotFound />} />
+      <Route path="/forbidden" element={<Forbidden />} />
       <Route path="*" element={<Navigate to="/not-found" replace />} />
     </Routes>
   );

@@ -152,7 +152,6 @@ function Login() {
     password: "",
     remember_me: false,
   });
-  const [role, setRole] = useState("doctor");
   const [showPassword, setShowPassword] = useState(false);
   const [data, setData] = useState([]);
   const [errors, setErrors] = useState({});
@@ -180,7 +179,6 @@ function Login() {
           "/login",
           {
             ...form,
-            role,
           },
           {
             headers: {
@@ -264,39 +262,6 @@ function Login() {
             <div className="cl-card-header">
               <h2>Welcome Back</h2>
               <p>Access your medical dashboard</p>
-            </div>
-
-            {/* Role Selector */}
-            <label className="cl-role-label">Select Role</label>
-            <div className="cl-role-selector">
-              <div className="cl-role-option">
-                <input
-                  type="radio"
-                  id="role-doctor"
-                  name="role"
-                  value="doctor"
-                  checked={role === "doctor"}
-                  onChange={() => setRole("doctor")}
-                />
-                <label className="cl-role-option-label" htmlFor="role-doctor">
-                  <IconStethoscope />
-                  Doctor
-                </label>
-              </div>
-              <div className="cl-role-option">
-                <input
-                  type="radio"
-                  id="role-patient"
-                  name="role"
-                  value="patient"
-                  checked={role === "patient"}
-                  onChange={() => setRole("patient")}
-                />
-                <label className="cl-role-option-label" htmlFor="role-patient">
-                  <IconPatient />
-                  Patient
-                </label>
-              </div>
             </div>
 
             {/* Form */}

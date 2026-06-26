@@ -20,7 +20,7 @@ class RegisterController extends Controller
     {
         $user = User::create($request->validated());
         Auth::login($user);
-
+        $request->session()->regenerate();
         return response()->json([
             'status' => true,
             'user' => $user,

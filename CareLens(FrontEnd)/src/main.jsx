@@ -4,11 +4,14 @@ import App from "./App";
 import { AuthProvider } from "./components/AuthProvider";
 import { BrowserRouter } from "react-router-dom";
 import "./config";
+import RoleProvider from "./components/RoleProvider";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-    <BrowserRouter>
+  <BrowserRouter>
+    <RoleProvider>
       <AuthProvider>
         <App />
       </AuthProvider>
-    </BrowserRouter>
+    </RoleProvider>
+  </BrowserRouter>,
 );
