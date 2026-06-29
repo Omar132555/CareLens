@@ -7,23 +7,32 @@ use App\Models\Doctor;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
 class DoctorController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $patientId = Auth::user()->id; 
-        $doctors = Doctor::selectRaw('
-        users.*,
-        EXISTS (
-            SELECT 1
-            FROM doctor_patient
-            WHERE doctor_patient.doctor_id = users.id
-              AND doctor_patient.patient_id = ?
-        ) AS is_followed
-    ', [$patientId])->with('category')
-            ->get();
+        $patientId = Auth::id();
+
+        $query = Doctor::query()
+            ->select('users.*')
+            ->addSelect([
+                'follow_state' => DB::table('follow_requests')
+                    ->select('status')
+                    ->whereColumn('doctor_id', 'users.id')
+                    ->where('patient_id', $patientId)
+                    ->limit(1),
+            ])
+            ->with('category');
+
+        // Filter by category
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->category_id);
+        }
+
+        $doctors = $query->get();
 
         return response()->json($doctors);
     }
@@ -37,13 +46,6 @@ class DoctorController extends Controller
     public function destroy(string $id) {}
 
     /* ─── Category ─────────────────────────────────────────── */
-
-    public function getCategories()
-    {
-        $categories = Category::all();
-
-        return response()->json($categories);
-    }
 
     public function updateCategory(Request $request)
     {
@@ -137,9 +139,25 @@ class DoctorController extends Controller
 
         return response()->json(['message' => 'Verification request cancelled.']);
     }
+
+    /**
+     * GET /api/doctor/patients
+     * Returns a list of patients currently associated with the doctor via doctor_patient pivot table
+     */
+    public function myPatients()
+    {
+        $doctor = \App\Models\Doctor::find(Auth::id());
+        if (!$doctor) {
+            return response()->json(['error' => 'Doctor not found'], 404);
+        }
+
+        $patients = $doctor->patients()->select('users.id', 'users.name', 'users.email', 'users.profile_photo')->get();
+
+        return response()->json($patients);
+    }
 }
 
 // عايز اقول لو الدكتور الحالي في الكويري معموله متابعه من المريض الحالي
 
-// take the id param of the doctor requested from the request 
-// send the request to the doctor if accepted toggle the follow 
+// take the id param of the doctor requested from the request
+// send the request to the doctor if accepted toggle the follow

@@ -32,8 +32,7 @@ function ChatMessages({ messages }) {
 
       <div className="d-flex flex-column align-items-start tw-gap-2 max-w-3xl me-auto w-100">
         <div className="d-flex align-items-end tw-gap-3">
-          <div className="bg-ai-chat rounded-pill size-8 flex-shrink-0" />
-
+        <div className="bg-ai-header bg-center bg-no-repeat bg-cover rounded-pill size-8 flex-shrink-0 border border-custom align-self-end tw-mb-1"></div>
           <div className="d-flex flex-column align-items-start tw-gap-1">
             <div className="tw-px-5 tw-py-4 bg-ai-bubble text-charcoal rounded-2xl">
               <p className="text-15px mb-0">How can I help you today?</p>

@@ -4,10 +4,15 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ChatAiController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\FollowUpController;
+use App\Http\Controllers\MedicationController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PatientController;
+use App\Http\Controllers\SymptomController;
+use App\Http\Controllers\TestController;
 use App\Http\Controllers\TreatmentPlanController;
 use App\Http\Middleware\EmergencyAlert;
 use App\Http\Middleware\EnsureMedicalProfile;
@@ -57,6 +62,16 @@ Route::middleware('auth:sanctum')->group(function () {
 
     /* ── Current user ───────────────────────────────────── */
     Route::get('/user', fn (Request $request) => Auth::user());
+    Route::get('/notification/test', [TestController::class, 'notificationTest']);
+                Route::get('/patient/medical-profile/get', [PatientController::class,'getMedicalProfile'])->name('medicalProfile.get');
+                Route::put('/patient/medical-profile/update', [PatientController::class,'updateMedicalProfile'])->name('medicalProfile.update');
+
+    /* ── Notifications ───────────────────────────────────── */
+    Route::controller(NotificationController::class)->group(function () {
+        Route::get('/notifications', 'index');
+        Route::post('/notifications/{id}/read', 'markAsRead');
+        Route::post('/notifications/read-all', 'markAllRead');
+    });
 
     /* ── Requires medical profile ───────────────────────── */
     Route::middleware(EnsureMedicalProfile::class)->group(function () {
@@ -65,17 +80,35 @@ Route::middleware('auth:sanctum')->group(function () {
            PATIENT ROUTES
         ═══════════════════════════════════════════════════════ */
         Route::middleware([EnsureRole::class.':patient'])->prefix('patient')->group(function () {
-            
+
             Route::post('/treatment-plans/{id}/log', [TreatmentPlanController::class, 'log']);
             Route::get('/doctors/all', [DoctorController::class, 'index'])->name('doctors.get');
-            Route::post('/follow/request', [FollowUpController::class, 'sendRequest'])->name('doctors.get');
+            Route::post('/follow/request', [FollowUpController::class, 'toggleRequest'])->name('follow.toggle');
+            Route::delete('/follow/remove', [FollowUpController::class, 'removeFollow'])->name('follow.remove.patient');
 
             /* ── Patient: medical profile ───────────────────────── */
             Route::controller(PatientController::class)->group(function () {
-                Route::put('/medical-profile/update', 'updateMedicalProfile')->name('medicalProfile.update');
-                Route::get('/medical-profile/get', 'getMedicalProfile')->name('medicalProfile.get');
             });
         });
+
+        /* ── Symptom Tracker ─────────────────────────────────── */
+        Route::prefix('symptoms')->group(function () {
+            Route::get('/logs', [SymptomController::class, 'index']);
+            Route::post('/log', [SymptomController::class, 'store']);
+            Route::delete('/logs/{id}', [SymptomController::class, 'destroy']);
+            Route::get('/logs/chart', [SymptomController::class, 'chart']);
+        });
+
+        /* ── Medications ─────────────────────────────────────── */
+        Route::prefix('medications')->group(function () {
+            Route::get('/', [MedicationController::class, 'index']);
+            Route::post('/', [MedicationController::class, 'store']);
+            Route::put('/{id}', [MedicationController::class, 'update']);
+            Route::delete('/{id}', [MedicationController::class, 'destroy']);
+        });
+
+        /* ── Dashboard Overview ───────────────────────────────── */
+        Route::get('/dashboard/overview', [MedicationController::class, 'dashboardOverview']);
 
         /* ── Chat AI ─────────────────────────────────────── */
         Route::controller(ChatAiController::class)->prefix('chatAi')->group(function () {
@@ -92,10 +125,12 @@ Route::middleware('auth:sanctum')->group(function () {
     ═══════════════════════════════════════════════════════ */
     Route::middleware([EnsureRole::class.':doctor'])->prefix('doctor')->group(function () {
 
-        /* ── Doctor: category ────────────────────────────── */
-        Route::controller(DoctorController::class)->prefix('doctor')->group(function () {
-            Route::get('/categories/get', 'getCategories')->name('categories.get');
+        /* ── Doctor: category & patients ────────────────────────────── */
+        Route::controller(DoctorController::class)->group(function () {
             Route::put('/category/update', 'updateCategory')->name('categories.put');
+            Route::post('/follow/approve', [FollowUpController::class, 'approveRequest'])->name('follow.approve');
+            Route::delete('/follow/remove', [FollowUpController::class, 'removeFollow'])->name('follow.remove');
+            Route::get('/patients', 'myPatients')->name('doctor.patients');
         });
 
         /* Verification */
@@ -106,9 +141,8 @@ Route::middleware('auth:sanctum')->group(function () {
         /* Doctor's own articles */
         Route::get('/articles', [ArticleController::class, 'doctorIndex']);
         Route::post('/articles', [ArticleController::class, 'store']);
-        Route::post('/articles/{id}', [ArticleController::class, 'update']);  // POST for multipart
+        Route::post('/articles/{id}', [ArticleController::class, 'update']);
         Route::delete('/articles/{id}', [ArticleController::class, 'destroy']);
-
         /* Treatment plans — doctor CRUD */
         Route::post('/treatment-plans', [TreatmentPlanController::class, 'store']);
         Route::put('/treatment-plans/{id}', [TreatmentPlanController::class, 'update']);
@@ -128,6 +162,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/{id}/save', [ArticleController::class, 'save']);
         Route::post('/{id}/comment', [ArticleController::class, 'comment']);
     });
+    /* ═══════════════════════════════════════════════════════
+       SHARED
+    ═══════════════════════════════════════════════════════ */
+    Route::get('/categories/get', [CategoryController::class, 'index'])->name('categories.get');
 
     /* ═══════════════════════════════════════════════════════
        SHARED — TREATMENT PLANS (read)
@@ -159,4 +197,5 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/articles', [AdminController::class, 'articles']);
         Route::delete('/articles/{id}', [AdminController::class, 'deleteArticle']);
     });
+
 });

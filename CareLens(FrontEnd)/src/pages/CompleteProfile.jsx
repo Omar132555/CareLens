@@ -45,8 +45,14 @@ export default function CompleteProfile() {
       );
 
       console.log("success", res.data);
-      navigate(`${res.redirect}`);
-    
+
+      if (form.role === "patient") {
+        navigate(`/home`);
+      }
+
+      if (form.role === "doctor") {
+        navigate(`/Doctor/Category/Select}`);
+      }
     } catch (err) {
       if (err.response?.status === 422) {
         setErrors(err.response.data.errors);

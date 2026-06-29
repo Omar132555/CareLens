@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { AuthContext } from "../components/AuthContext";
 import prepareRequest from "../services/RequestService";
@@ -14,14 +14,25 @@ export default function ArticleEditorModal({ open, article, onClose, onSaved }) 
   const isEdit = !!article;
 
   const [form, setForm] = useState({
-    title: article?.title || "",
-    content: article?.content || "",
-    category: article?.category || "",
+    title: "",
+    content: "",
+    category: "",
     image: null,
   });
-  const [imagePreview, setImagePreview] = useState(article?.image || null);
+  const [imagePreview, setImagePreview] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [notification, setNotification] = useState(null);
+
+  // ✅ Reset form لما article يتغير (مهم عشان الـ edit يشتغل صح)
+  useEffect(() => {
+    setForm({
+      title: article?.title || "",
+      content: article?.content || "",
+      category: article?.category || "",
+      image: null,
+    });
+    setImagePreview(article?.image || null);
+  }, [article, open]);
 
   if (!open) return null;
 
@@ -54,21 +65,24 @@ export default function ArticleEditorModal({ open, article, onClose, onSaved }) 
 
       let res;
       if (isEdit) {
+        // ✅ /api/doctor/articles/{id}
         data.append("_method", "PUT");
-        res = await axios.post(`/api/articles/${article.id}`, data, {
+        res = await axios.post(`/api/doctor/articles/${article.id}`, data, {
           headers: {
             "X-XSRF-TOKEN": decodeURIComponent(token),
             "Content-Type": "multipart/form-data",
           },
         });
       } else {
-        res = await axios.post("/api/articles", data, {
+        // ✅ /api/doctor/articles
+        res = await axios.post("/api/doctor/articles", data, {
           headers: {
             "X-XSRF-TOKEN": decodeURIComponent(token),
             "Content-Type": "multipart/form-data",
           },
         });
       }
+
       setNotification({
         type: "success",
         title: isEdit ? "Article Updated" : "Article Published",

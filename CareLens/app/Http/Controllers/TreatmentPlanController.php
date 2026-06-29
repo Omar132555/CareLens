@@ -80,7 +80,7 @@ class TreatmentPlanController extends Controller
         $request->validate([
             'title'               => 'required|string|max:255',
             'instructions'        => 'required|string',
-            'patient_email'       => 'required|email|exists:users,email',
+            'patient_id'          => 'required|integer|exists:users,id',
             'start_date'          => 'required|date',
             'end_date'            => 'nullable|date|after:start_date',
             'status'              => 'sometimes|string',
@@ -93,7 +93,7 @@ class TreatmentPlanController extends Controller
             'follow_up_questions.*.question' => 'required_with:follow_up_questions|string',
         ]);
 
-        $patient = User::where('email', $request->patient_email)->where('role', 'patient')->firstOrFail();
+        $patient = User::where('id', $request->patient_id)->where('role', 'patient')->firstOrFail();
 
         $plan = TreatmentPlan::create([
             'doctor_id'    => Auth::id(),
@@ -109,11 +109,11 @@ class TreatmentPlanController extends Controller
         if ($request->filled('medications')) {
             foreach ($request->medications as $med) {
                 PlanMedication::create([
-                    'plan_id'      => $plan->id,
-                    'name'         => $med['name'],
-                    'dosage'       => $med['dosage'],
-                    'timing'       => $med['timing'] ?? null,
-                    'instructions' => $med['instructions'] ?? null,
+                    'plan_id'         => $plan->id,
+                    'medication_name' => $med['name'],
+                    'dosage'          => $med['dosage'],
+                    'frequency'       => $med['timing'] ?? null,
+                    'notes'           => $med['instructions'] ?? null,
                 ]);
             }
         }
@@ -155,11 +155,11 @@ class TreatmentPlanController extends Controller
             $plan->medications()->delete();
             foreach ($request->medications as $med) {
                 PlanMedication::create([
-                    'plan_id'      => $plan->id,
-                    'name'         => $med['name'],
-                    'dosage'       => $med['dosage'],
-                    'timing'       => $med['timing'] ?? null,
-                    'instructions' => $med['instructions'] ?? null,
+                    'plan_id'         => $plan->id,
+                    'medication_name' => $med['name'],
+                    'dosage'          => $med['dosage'],
+                    'frequency'       => $med['timing'] ?? null,
+                    'notes'           => $med['instructions'] ?? null,
                 ]);
             }
         }
@@ -284,7 +284,16 @@ class TreatmentPlanController extends Controller
             'doctor_name'         => $plan->relationLoaded('doctor') ? optional($plan->doctor)->name : null,
             'patient'             => $plan->relationLoaded('patient') ? $plan->patient : null,
             'patient_id'          => $plan->patient_id,
-            'medications'         => $plan->relationLoaded('medications') ? $plan->medications : [],
+            'medications'         => $plan->relationLoaded('medications') ? $plan->medications->map(function ($med) {
+                return [
+                    'id'           => $med->id,
+                    'plan_id'      => $med->plan_id,
+                    'name'         => $med->medication_name,
+                    'dosage'       => $med->dosage,
+                    'timing'       => $med->frequency,
+                    'instructions' => $med->notes,
+                ];
+            }) : [],
             'follow_up_questions' => $plan->relationLoaded('followUpQuestions') ? $plan->followUpQuestions : [],
             'daily_logs_count'    => $plan->daily_logs_count ?? null,
             'created_at'          => $plan->created_at,

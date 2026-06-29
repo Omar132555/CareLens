@@ -63,4 +63,9 @@ class User extends Authenticatable
             'doctor_id'
         );
     }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
 }

@@ -3,7 +3,7 @@ import DisplayConversations from "./Conversations";
 import { useNavigate } from "react-router-dom";
 import ProfilePhoto from "./ProfilePhoto";
 
-function Sidebar({ setMessages }) {
+function Sidebar({ setMessages, user }) {
   const navigate = useNavigate();
   async function handleAsk() {
     setMessages([]);
@@ -25,15 +25,14 @@ function Sidebar({ setMessages }) {
             </h1>
           </div>
 
-          <button className="d-flex w-100 cursor-pointer align-items-center tw-gap-3 rounded-pill tw-h-12 tw-px-4 bg-primary-custom hover-bg-primary-hover transition-colors text-white tw-mb-6 shadow-lg-custom shadow-primary-10 group border-0"
-           onClick={handleAsk}>
+          <button
+            className="d-flex w-100 cursor-pointer align-items-center tw-gap-3 rounded-pill tw-h-12 tw-px-4 bg-primary-custom hover-bg-primary-hover transition-colors text-white tw-mb-6 shadow-lg-custom shadow-primary-10 group border-0"
+            onClick={handleAsk}
+          >
             <span className="material-symbols-outlined transition-transform group-hover-rotate-90">
               add
             </span>
-            <span
-              className="text-sm fw-bold leading-normal tracking-015"
-             
-            >
+            <span className="text-sm fw-bold leading-normal tracking-015">
               New Consultation
             </span>
           </button>
@@ -48,15 +47,12 @@ function Sidebar({ setMessages }) {
           {<ProfilePhoto />}
           <div className="d-flex flex-column flex-grow-1 min-w-0">
             <span className="text-charcoal text-sm fw-bold text-truncate group-hover-text-primary">
-              James Anderson
+              {user.name}
             </span>
             <span className="text-secondary-custom text-xs text-truncate">
               Premium Plan
             </span>
           </div>
-          <span className="material-symbols-outlined text-secondary-custom text-20px group-hover-text-primary">
-            settings
-          </span>
         </button>
       </div>
     </aside>

@@ -186,7 +186,7 @@ class ArticleController extends Controller
             'title'        => $request->title,
             'content'      => $request->content,
             'category'     => $request->category,
-            'image'        => $imagePath,
+            'image'        => asset($imagePath),
             'published_at' => now(),
         ]);
 
@@ -242,7 +242,7 @@ class ArticleController extends Controller
             'title'        => $a->title,
             'content'      => $a->content,
             'category'     => $a->category,
-            'image'        => $a->image,
+            'image'        => $a->image ? "http://localhost:8000".$a->image : null,
             'published_at' => $a->published_at,
             'doctor'       => $a->doctor,
             'doctor_id'    => $a->doctor_id,

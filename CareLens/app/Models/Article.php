@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class Article extends Model
 {
     protected $guarded = [];
-
     protected $appends = ['is_liked', 'is_saved'];
 
     public function doctor()

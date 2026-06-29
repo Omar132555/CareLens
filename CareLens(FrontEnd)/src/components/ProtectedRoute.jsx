@@ -36,7 +36,7 @@ export default function ProtectedRoute({ children, allowedRoles }) {
       }
       try {
         const token = prepareRequest();
-        const response = await axios.get("/api/medical-profile/get", {
+        const response = await axios.get("/api/patient/medical-profile/get", {
           headers: { "X-XSRF-TOKEN": decodeURIComponent(token) },
         });
         if (response.data?.[0] == false) setShowMedicalProfileModal(true);

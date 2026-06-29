@@ -27,6 +27,7 @@ import Forbidden from "./pages/Forbidden.jsx";
 import DoctorDashboard from "./pages/DoctorDashboard.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 import Doctors from "./pages/Doctors.jsx";
+import Patients from "./pages/Patients.jsx";
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
           </ProtectedRoute>
         }
       />
+<Route path="/patients" element={<Patients />} />
       <Route
         path="/doctor-dashboard"
         element={

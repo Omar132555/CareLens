@@ -8,7 +8,7 @@ use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class FollowRequest extends Notification implements ShouldQueue
+class TestNotification extends Notification
 {
     use Queueable;
 
@@ -17,7 +17,7 @@ class FollowRequest extends Notification implements ShouldQueue
      */
     public function __construct()
     {
-        
+        //
     }
 
     /**
@@ -41,14 +41,13 @@ class FollowRequest extends Notification implements ShouldQueue
             ->line('Thank you for using our application!');
     }
 
-    public function toBroadcast(object $notifiable): BroadcastMessage
+    public function toBroadcast(object $notifiable)
     {
         return new BroadcastMessage([
-            'invoice_id' => $this->invoice->id,
-            'amount' => $this->invoice->amount,
+            'status'   => true,
+            'type' => 'test'
         ]);
     }
-
     /**
      * Get the array representation of the notification.
      *

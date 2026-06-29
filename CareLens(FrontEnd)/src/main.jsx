@@ -4,6 +4,7 @@ import App from "./App";
 import { AuthProvider } from "./components/AuthProvider";
 import { BrowserRouter } from "react-router-dom";
 import "./config";
+import "./services/echo.js"; 
 import RoleProvider from "./components/RoleProvider";
 
 ReactDOM.createRoot(document.getElementById("root")).render(

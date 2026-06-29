@@ -46,6 +46,8 @@ export default function AdminDashboard() {
     setVerificationLoading(true);
     try {
       const res = await axios.get("/api/admin/verification/requests", { headers: hdr() });
+      console.log(res.data);
+      
       setVerifications(res.data || []);
     } catch {
       console.error("Failed to load verifications");

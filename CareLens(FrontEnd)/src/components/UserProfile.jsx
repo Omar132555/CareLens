@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "./AuthContext";
 import prepareRequest from "../services/RequestService";
+import { hasRole } from "../helpers/hasRole";
 
-function UserProfile({ title = "" }) {
+function UserProfile({ title = "", user }) {
   const initials = title ? title.substring(0, 2).toUpperCase() : "NA";
   const { setUser } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -25,12 +26,11 @@ function UserProfile({ title = "" }) {
   const handleLogout = async () => {
     try {
       const token = prepareRequest();
-      const res = await axios.delete("/api/logout",{
-        headers:{
-          "X-XSRF-TOKEN":decodeURIComponent(token)
-        }
+      const res = await axios.delete("/api/logout", {
+        headers: {
+          "X-XSRF-TOKEN": decodeURIComponent(token),
+        },
       });
-      
     } catch (err) {
       console.warn("Logout failed", err);
       console.log(err.response?.data);
@@ -42,7 +42,10 @@ function UserProfile({ title = "" }) {
 
   const handleDashboard = () => {
     setOpen(false);
-    navigate("/dashboard");
+    if (hasRole(user, "patient")) navigate("/patient-dashboard");
+    else if (hasRole(user, "doctor")) {
+      navigate("/doctor-dashboard");
+    }
   };
 
   return (
@@ -59,10 +62,18 @@ function UserProfile({ title = "" }) {
 
       {open && (
         <div className="profile-menu-dropdown">
-          <button type="button" className="profile-menu-item" onClick={handleDashboard}>
+          <button
+            type="button"
+            className="profile-menu-item"
+            onClick={handleDashboard}
+          >
             Dashboard
           </button>
-          <button type="button" className="profile-menu-item" onClick={handleLogout}>
+          <button
+            type="button"
+            className="profile-menu-item"
+            onClick={handleLogout}
+          >
             Logout
           </button>
         </div>

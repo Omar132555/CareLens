@@ -2,8 +2,11 @@
 
 namespace App\Models;
 
+use Illuminate\Notifications\Notifiable;
+
 class Patient extends User
 {
+    use Notifiable;
     protected $guarded = [];
 
     protected $table = 'users';

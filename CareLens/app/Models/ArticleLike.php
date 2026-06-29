@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class ArticleLike extends Model
 {
     protected $guarded = [];
+    public $timestamps = false;
+
     public function article()
     {
         return $this->belongsTo(Article::class);

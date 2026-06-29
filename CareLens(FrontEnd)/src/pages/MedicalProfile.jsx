@@ -31,7 +31,7 @@ export default function MedicalProfile() {
   const fetchMedicalProfile = async () => {
     try {
       const token = prepareRequest();
-      const response = await axios.get("/api/medical-profile/get", {
+      const response = await axios.get("/api/patient/medical-profile/get", {
         headers: {
           "X-XSRF-TOKEN": decodeURIComponent(token),
         },
@@ -64,7 +64,7 @@ export default function MedicalProfile() {
     try {
       setErrors({});
       const token = prepareRequest();
-      await axios.put("/api/medical-profile/update", formData, {
+      await axios.put("/api/patient/medical-profile/update", formData, {
         headers: {
           "X-XSRF-TOKEN": decodeURIComponent(token),
         },
@@ -77,7 +77,7 @@ export default function MedicalProfile() {
       });
 
       setTimeout(() => {
-        navigate("/dashboard");
+        navigate("/home");
       }, 1500);
     } catch (err) {
       if (err.response?.status === 422) {

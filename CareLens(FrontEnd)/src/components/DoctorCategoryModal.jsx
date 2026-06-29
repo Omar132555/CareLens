@@ -34,7 +34,7 @@ const SPEC_ICONS = {
 };
 
 export default function DoctorCategoryModal() {
-  const { user, loading: authLoading } = useContext(AuthContext);
+  const { user, setUser, loading: authLoading } = useContext(AuthContext);
   const navigate = useNavigate();
   /* ── auth guard ─────────────────────────────────────────────── */
   useEffect(() => {
@@ -83,7 +83,7 @@ export default function DoctorCategoryModal() {
       setCatLoading(true);
       setCatError(null);
       try {
-        const res = await axios.get("/api/doctor/categories/get");
+        const res = await axios.get("/api/categories/get");
         if (res.status === 200) setCategories(res.data);
       } catch {
         if (!cancelled)
@@ -133,14 +133,16 @@ export default function DoctorCategoryModal() {
           headers: {
             "X-XSRF-TOKEN": decodeURIComponent(token),
           },
-        }
+        },
       );
       setSuccessMsg("Verification request sent successfully!");
       setTimeout(() => {
         navigate("/doctor-dashboard", { replace: true });
       }, 1500);
     } catch (err) {
-      setErrorMsg(err.response?.data?.message || "Failed to request verification.");
+      setErrorMsg(
+        err.response?.data?.message || "Failed to request verification.",
+      );
       setRequestingVerification(false);
     }
   };
@@ -827,7 +829,9 @@ export default function DoctorCategoryModal() {
                     </button>
                     <button
                       className="wz-btn wz-btn-primary"
-                      onClick={saveCategory}
+                      onClick={() => {
+                        saveCategory();
+                      }}
                       disabled={!form.category_id || savingCategory}
                     >
                       {savingCategory ? "Saving..." : "Next"}
@@ -933,7 +937,8 @@ export default function DoctorCategoryModal() {
                 >
                   <div className="wz-step-title">Account Verification</div>
                   <div className="wz-step-sub">
-                    Get the CareLens Verified badge to build trust with patients.
+                    Get the CareLens Verified badge to build trust with
+                    patients.
                   </div>
 
                   <div
@@ -962,11 +967,16 @@ export default function DoctorCategoryModal() {
                         verified
                       </span>
                     </div>
-                    <h3 className="wz-confirm-name mt-3" style={{ fontSize: "1.2rem" }}>
+                    <h3
+                      className="wz-confirm-name mt-3"
+                      style={{ fontSize: "1.2rem" }}
+                    >
                       Request Verification Badge
                     </h3>
                     <p className="wz-step-sub mb-0 mt-2">
-                      Submitting a verification request will notify the CareLens admin team. Once your medical credentials are confirmed, a badge will appear on your profile.
+                      Submitting a verification request will notify the CareLens
+                      admin team. Once your medical credentials are confirmed, a
+                      badge will appear on your profile.
                     </p>
                   </div>
 
@@ -977,8 +987,17 @@ export default function DoctorCategoryModal() {
                     </div>
                   )}
                   {successMsg && (
-                    <div className="wz-error mb-3" style={{ background: "#d1fae5", color: "#065f46", borderColor: "#a7f3d0" }}>
-                      <span className="material-symbols-outlined">check_circle</span>
+                    <div
+                      className="wz-error mb-3"
+                      style={{
+                        background: "#d1fae5",
+                        color: "#065f46",
+                        borderColor: "#a7f3d0",
+                      }}
+                    >
+                      <span className="material-symbols-outlined">
+                        check_circle
+                      </span>
                       {successMsg}
                     </div>
                   )}
@@ -988,7 +1007,10 @@ export default function DoctorCategoryModal() {
                       className="wz-btn wz-btn-secondary"
                       onClick={() => {
                         setDone(true);
-                        setTimeout(() => navigate("/home", { replace: true }), 1500);
+                        setTimeout(
+                          () => navigate("/home", { replace: true }),
+                          1500,
+                        );
                       }}
                       disabled={requestingVerification}
                     >
@@ -1017,7 +1039,10 @@ export default function DoctorCategoryModal() {
                         </>
                       ) : (
                         <>
-                          <span className="mat-icon" style={{ fontSize: "1.1rem" }}>
+                          <span
+                            className="mat-icon"
+                            style={{ fontSize: "1.1rem" }}
+                          >
                             verified
                           </span>
                           Request Verification

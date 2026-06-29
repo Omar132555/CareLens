@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "../components/AuthContext";
 import prepareRequest from "../services/RequestService";
 import VerificationStatusBanner from "../components/VerificationStatusBanner";
 import ArticleEditorModal from "../components/ArticleEditorModal";
 import NotificationToast from "../components/NotificationToast";
+import Scroll from "../hooks/Scroll";
+import NavBar from "../components/navBar";
+import { hasRole } from "../helpers/hasRole";
 
 export default function DoctorDashboard() {
   const navigate = useNavigate();
@@ -18,6 +21,7 @@ export default function DoctorDashboard() {
     upcomingMedications: [],
   });
   const [loading, setLoading] = useState(true);
+  const scrolled = Scroll();
 
   /* ── Articles (blogs tab) ─────────────────────────────────── */
   const [articles, setArticles] = useState([]);
@@ -54,7 +58,7 @@ export default function DoctorDashboard() {
     setArticlesLoading(true);
     try {
       const token = prepareRequest();
-      const res = await axios.get("/api/articles/doctor/mine", {
+      const res = await axios.get("/api/doctor/articles", {
         headers: { "X-XSRF-TOKEN": decodeURIComponent(token) },
       });
       setArticles(res.data || []);
@@ -73,7 +77,7 @@ export default function DoctorDashboard() {
     if (!window.confirm("Delete this article?")) return;
     try {
       const token = prepareRequest();
-      await axios.delete(`/api/articles/${id}`, {
+      await axios.delete(`/api/doctor/articles/${id}`, {
         headers: { "X-XSRF-TOKEN": decodeURIComponent(token) },
       });
       setArticles((prev) => prev.filter((a) => a.id !== id));
@@ -153,17 +157,60 @@ export default function DoctorDashboard() {
           </div>
         </div>
       </aside>
-
-      {/* ── Topbar ──────────────────────────────────────────── */}
+      {<NavBar scrolled={scrolled}/>}
+            {/* ── Topbar ──────────────────────────────────────────── */}
       <header className="topbar">
+                <NavLink
+          to="/home"
+          className={({ isActive }) =>
+            isActive ? "cl-nav-link active" : "cl-nav-link"
+          }
+        >
+          Home
+        </NavLink>
+        <NavLink
+          to="/treatment-followup"
+          className={({ isActive }) =>
+            isActive ? "cl-nav-link active" : "cl-nav-link"
+          }
+        >
+          Treatment Plan
+        </NavLink>
+        {hasRole(user, "patient") && (
+          <NavLink
+            to="/medical-profile"
+            className={({ isActive }) =>
+              isActive ? "cl-nav-link active" : "cl-nav-link"
+            }
+          >
+            Medical Profile
+          </NavLink>
+        )}
+        {hasRole(user, "doctor") && (
+          <NavLink
+            to="/patients"
+            className={({ isActive }) =>
+              isActive ? "cl-nav-link active" : "cl-nav-link"
+            }
+          >
+            Patients
+          </NavLink>
+        )}
+        {hasRole(user, "patient") && (
+          <NavLink
+            to="/doctors"
+            className={({ isActive }) =>
+              isActive ? "cl-nav-link active" : "cl-nav-link"
+            }
+          >
+            Doctors
+          </NavLink>
+        )}
+
         <h1 className="mb-0 text-primary-custom" style={{ fontFamily: "'Manrope',sans-serif", fontSize: "1.1rem", fontWeight: 700 }}>
           Welcome back, Dr. {user?.name?.split(" ")[0] || "Doctor"}
         </h1>
         <div className="d-flex align-items-center gap-4">
-          <div className="position-relative">
-            <span className="material-symbols-outlined text-secondary" style={{ cursor: "pointer" }}>notifications</span>
-            <span className="position-absolute top-0 end-0 rounded-circle bg-danger border border-white" style={{ width: "8px", height: "8px", display: "block" }} />
-          </div>
           <div className="d-flex align-items-center gap-2 ps-3 border-start">
             <div className="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold flex-shrink-0"
               style={{ width: 40, height: 40, background: "#0d9488", fontSize: "1rem" }}>
@@ -176,6 +223,7 @@ export default function DoctorDashboard() {
           </div>
         </div>
       </header>
+
 
       {/* ── Main Content ─────────────────────────────────────── */}
       <main className="main-content">
